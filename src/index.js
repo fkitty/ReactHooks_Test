@@ -101,45 +101,111 @@ const rootElement = document.getElementById("root");
 /**
  * useContext切换主题的例子（全局变量）
  */
-const themeContext = React.createContext(null); // 初始化一个上下文
+// const themeContext = React.createContext(null); // 初始化一个上下文
 
+// function App() {
+//   // 全局切换主题
+//   const [theme, setTheme] = React.useState("red");
+//   return (
+//     // value的意思就是：对全局变量进行一次赋值，它的值是一个对象
+//     // value={ js的开始{ theme: theme的缩写, setTheme }}
+//     // 一开始就把全局变量的初始值赋值为一个对象，这个对象有theme和setTheme两个属性
+//     // themeContext.Provider这个上下文全局变量 ：它的作用域就从themeContext.Provider这里开始到结束，只有在这里可以用theme和setTheme
+//     <themeContext.Provider value={{ theme, setTheme }}>
+//       <div className={`App ${theme}`}>
+//         <p>{theme}</p>
+//         <div>
+//           <ChildA />
+//         </div>
+//         <div>
+//           <ChildB />
+//         </div>
+//       </div>
+//     </themeContext.Provider>
+//   );
+// }
+
+// function ChildA() {
+//   // 从全局变量themeContext中读取setTheme
+//   const { setTheme } = React.useContext(themeContext);
+//   return (
+//     <div>
+//       <button onClick={() => setTheme("red")}>red</button>
+//     </div>
+//   );
+// }
+
+// function ChildB() {
+//   const { setTheme } = React.useContext(themeContext);
+//   return (
+//     <div>
+//       <button onClick={() => setTheme("blue")}>blue</button>
+//     </div>
+//   );
+// }
+
+
+/**
+ * 不能局部更新
+ */
+// function App() {
+//   const [user, setUser] = React.useState({name:'Frank', age: 18}) // 引用状态
+//   const onClick = ()=>{
+//     // user.name = 'jack';
+//     // setUser(user);
+//     setUser({ // 设置状态
+//       ...user, // setState不会帮我们合并属性，需要用这种方式来合并属性：拷贝user的所有属性
+//       name: 'Jack'
+//     })
+//   }
+//   return (
+//     <div className="App">
+//       <h1>{user.name}</h1>
+//       <h2>{user.age}</h2>
+//       <button onClick={onClick}>Click</button>
+//     </div>
+//   );
+// }
+
+
+/**
+ * useState接受函数
+ */
+// function App() {
+//   const [user, setUser] = React.useState(() => ({name:'Frank', age: 9+9})) // 箭头函数，返回一个对象
+//   const onClick = ()=>{
+//     // user.name = 'jack';
+//     // setUser(user);
+//     setUser({ // 设置状态
+//       ...user, // setState不会帮我们合并属性，需要用这种方式来合并属性：拷贝user的所有属性
+//       name: 'Jack'
+//     })
+//   }
+//   return (
+//     <div className="App">
+//       <h1>{user.name}</h1>
+//       <h2>{user.age}</h2>
+//       <button onClick={onClick}>Click</button>
+//     </div>
+//   );
+// }
+
+
+/**
+ * setUser接受函数的应用举例（对state进行多次操作的时候）
+ */
 function App() {
-  // 全局切换主题
-  const [theme, setTheme] = React.useState("red");
+  const [n, setN] = React.useState(0)
+  const onClick = ()=>{
+    setN(n+1) // n 不会变
+    setN(n+1) // 发现 n 不能加 2   因为只有最后一次有用
+    // setN(i=>i+1)
+    // setN(i=>i+1)
+  }
   return (
-    // value的意思就是：对全局变量进行一次赋值，它的值是一个对象
-    // value={ js的开始{ theme: theme的缩写, setTheme }}
-    // 一开始就把全局变量的初始值赋值为一个对象，这个对象有theme和setTheme两个属性
-    // themeContext.Provider这个上下文全局变量 ：它的作用域就从themeContext.Provider这里开始到结束，只有在这里可以用theme和setTheme
-    <themeContext.Provider value={{ theme, setTheme }}>
-      <div className={`App ${theme}`}>
-        <p>{theme}</p>
-        <div>
-          <ChildA />
-        </div>
-        <div>
-          <ChildB />
-        </div>
-      </div>
-    </themeContext.Provider>
-  );
-}
-
-function ChildA() {
-  // 从全局变量themeContext中读取setTheme
-  const { setTheme } = React.useContext(themeContext);
-  return (
-    <div>
-      <button onClick={() => setTheme("red")}>red</button>
-    </div>
-  );
-}
-
-function ChildB() {
-  const { setTheme } = React.useContext(themeContext);
-  return (
-    <div>
-      <button onClick={() => setTheme("blue")}>blue</button>
+    <div className="App">
+      <h1>n: {n}</h1>
+      <button onClick={onClick}>+2</button>
     </div>
   );
 }
