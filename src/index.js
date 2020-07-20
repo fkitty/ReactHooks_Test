@@ -194,21 +194,113 @@ const rootElement = document.getElementById("root");
 /**
  * setUser接受函数的应用举例（对state进行多次操作的时候）
  */
+// function App() {
+
+//   const [n, setN] = React.useState(0)
+//   const onClick = ()=>{
+//     setN(n+1) // n 不会变
+//     setN(n+1) // 发现 n 不能加 2   因为只有最后一次有用
+//     // setN(i=>i+1)
+//     // setN(i=>i+1)
+//   }
+//   return (
+//     <div className="App">
+//       <h1>n: {n}</h1>
+//       <button onClick={onClick}>+2</button>
+//     </div>
+//   );
+// }
+
+
+
+/**
+ * useContext
+ */
+const C = React.createContext(null); // 可以使用的一个全局变量
+
 function App() {
-  const [n, setN] = React.useState(0)
-  const onClick = ()=>{
-    setN(n+1) // n 不会变
-    setN(n+1) // 发现 n 不能加 2   因为只有最后一次有用
-    // setN(i=>i+1)
-    // setN(i=>i+1)
-  }
+  const [n, setN] = React.useState(0);
   return (
-    <div className="App">
-      <h1>n: {n}</h1>
-      <button onClick={onClick}>+2</button>
-    </div>
+    // 可以简写为value={{n, setN}}
+    <C.Provider value={{ n:n, setN:setN}}>
+      <div className="App">
+        <Father />
+      </div>
+    </C.Provider>
   );
 }
 
+function Father(){
+  const { n } = React.useContext(C);
+  return(
+    <div>这是测试1, 中的n：{n}<Child/></div>
+  )
+}
+
+function Child(){
+  const {n, setN} = React.useContext(C)// 在Child中使用n,注意这里是对象，因为value传的是对象
+  const onClick = () => {
+    setN(i => i+1);
+  }
+  return(
+    <div>
+      这是测试2，这里得到的n:{n}
+      <button onClick={onClick}>+1</button>
+    </div>
+  )
+}
+
+/**
+ * useEffect
+ */
+// function App() {
+//   const [n, setN] = React.useState(0);
+//   const onClick = () => {
+//     setN( i => i +1);
+//   }
+
+  // React.useEffect(() => {
+  //   console.log('第一次渲染执行这句话')
+  //   document.title = 'hi'; // 这里改变了环境，就是一个副作用
+  // }, []) // 里面的变量变化时执行（不会执行）
+
+//   React.useEffect(() => {
+//     console.log('第一二三...次渲染执行这句话')
+//   }) // 任何一个状态变化时都执行（默认是所有的状态）
+
+  // React.useEffect(() => {
+  //   console.log('n变化了（是包含第一次的）')
+  // }, [n]) // n变化时执行
+
+  // React.useEffect(() => {
+  //   const id = setInterval(() => {
+  //     console.log('hi')
+  //   }, 1000)
+  //   return () => { // 实现commponentWillUnMount的功能
+  //     window.clearInterval(id);
+  //   }
+  // }, []) // 里面的变量变化时执行（不会执行）
+
+//   return (
+//     <div>
+//       n: {n}
+//       <button onClick={onClick}>+1</button>
+//     </div>
+
+//   );
+// }
+
+
+// function App(){
+//   const [value, setValue] = React.useState(8888889);
+
+//   React.useEffect(() => { // 将useEffect改成useLayoutEffect就不会出现闪烁的情况
+//     document.querySelector('#x').innerText = `value: 1000`
+//   }, [value]);
+
+//   return (
+//     <div id="x" onClick={() => setValue(0)}>value: {value}</div> // 页面会有个很快的闪烁，先是8888889，迅速变成了1000
+//   );
+// };
 
 ReactDOM.render(<App />, rootElement);
