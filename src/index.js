@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import "./styles.css";
 const rootElement = document.getElementById("root");
@@ -216,39 +216,39 @@ const rootElement = document.getElementById("root");
 /**
  * useContext
  */
-const C = React.createContext(null); // 可以使用的一个全局变量
+// const C = React.createContext(null); // 可以使用的一个全局变量
 
-function App() {
-  const [n, setN] = React.useState(0);
-  return (
-    // 可以简写为value={{n, setN}}
-    <C.Provider value={{ n:n, setN:setN}}>
-      <div className="App">
-        <Father />
-      </div>
-    </C.Provider>
-  );
-}
+// function App() {
+//   const [n, setN] = React.useState(0);
+//   return (
+//     // 可以简写为value={{n, setN}}
+//     <C.Provider value={{ n:n, setN:setN}}>
+//       <div className="App">
+//         <Father />
+//       </div>
+//     </C.Provider>
+//   );
+// }
 
-function Father(){
-  const { n } = React.useContext(C);
-  return(
-    <div>这是测试1, 中的n：{n}<Child/></div>
-  )
-}
+// function Father(){
+//   const { n } = React.useContext(C);
+//   return(
+//     <div>这是测试1, 中的n：{n}<Child/></div>
+//   )
+// }
 
-function Child(){
-  const {n, setN} = React.useContext(C)// 在Child中使用n,注意这里是对象，因为value传的是对象
-  const onClick = () => {
-    setN(i => i+1);
-  }
-  return(
-    <div>
-      这是测试2，这里得到的n:{n}
-      <button onClick={onClick}>+1</button>
-    </div>
-  )
-}
+// function Child(){
+//   const {n, setN} = React.useContext(C)// 在Child中使用n,注意这里是对象，因为value传的是对象
+//   const onClick = () => {
+//     setN(i => i+1);
+//   }
+//   return(
+//     <div>
+//       这是测试2，这里得到的n:{n}
+//       <button onClick={onClick}>+1</button>
+//     </div>
+//   )
+// }
 
 /**
  * useEffect
@@ -302,5 +302,132 @@ function Child(){
 //     <div id="x" onClick={() => setValue(0)}>value: {value}</div> // 页面会有个很快的闪烁，先是8888889，迅速变成了1000
 //   );
 // };
+
+
+/**
+ * useMemo, 例子多余的render
+ * n变化的时候，Child也执行了
+ * Child只依赖m，m没有改变，Child为什么执行了呢
+ */
+// function App () {
+//   const [n, setN] = React.useState(0);
+//   const [m, setM] = React.useState(0);
+//   const onClick = () => {
+//     setN(n + 1);
+//   };
+
+//   return (
+//     <div className="App">
+//       <div>
+//         <button onClick={onClick}>update n {n}</button>
+//       </div>
+//       <Child data={m}/>
+//       {/* <Child2 data={m}/> */}
+//     </div>
+//   );
+// }
+
+// function Child(props) {
+//   console.log("child 执行了");
+//   console.log('假设这里有大量代码')
+//   return <div>child: {props.data}</div>;
+// }
+
+
+/**
+ * forwardRef举例
+ */
+// function App() {
+//   const buttonRef = React.useRef(null);
+//   // const button = document.querySelector('#x'); // button2的id,使用ref代替id='x'
+//   return (
+//     <div className="App">
+//       {/* 希望能使用buttonRef引用到button2对应的DOM对象，这样就不用jQuery去找了 */}
+//       <Button3 ref={buttonRef} >按钮</Button3>
+//       {/* 看浏览器控制台的报错 */}
+//     </div>
+//   );
+// }
+
+// // const Button2 = (props, ref) => {
+// //   console.log(props, 'props'); // 只有children没有ref
+// //   console.log(ref, 'ref====');
+// //   return <button className="red" ref={ref} {...props} />;
+// // };
+
+// // const Button3 = React.forwardRef(Button2);
+
+// // 缩写Button2
+// const Button3 = React.forwardRef((props, ref) => {
+//   console.log(props, 'props'); // 只有children没有ref
+//   console.log(ref, 'ref====');
+//   return <button className="red" ref={ref} {...props} />;
+// });
+
+
+/**
+ * 不使用useImperativeHandle的例子
+ */
+// function App() {
+//   const buttonRef = React.useRef(null);
+
+//   useEffect(() => {
+//     console.log(buttonRef.current, 'ref===='); // 在渲染之后打印
+//   })
+
+//   return (
+//     <div className="App">
+//       {/* 希望能使用buttonRef引用到button2对应的DOM对象，这样就不用jQuery去找了 */}
+//       <Button3 ref={buttonRef} >按钮</Button3>
+//       {/* 看浏览器控制台的报错 */}
+//     </div>
+//   );
+// }
+
+// const Button3 = React.forwardRef((props, ref) => {
+//   return <button className="red" ref={ref} {...props} />;
+// });
+
+
+/**
+ * 使用useImperativeHandle的例子（ref可以支持自定义）
+ */
+function App() {
+  const buttonRef = React.useRef(null);
+  useEffect(() => {
+    console.log(buttonRef.current);
+  });
+  return (
+    <div className="App">
+      <Button2 ref={buttonRef}>按钮</Button2>
+      <button
+        className="close"
+        onClick={() => {
+          console.log(buttonRef);
+          buttonRef.current.x();
+        }}
+      >
+        x
+      </button>
+    </div>
+  );
+}
+
+const Button2 = React.forwardRef((props, ref) => {
+  const realButton = React.createRef(null);
+  const setRef = React.useImperativeHandle; 
+  setRef(ref, () => { // 把ref赋值成一个对象
+    return {
+      x: () => {
+        realButton.current.remove();
+      },
+      realButton: realButton
+    };
+  });
+  return <button ref={realButton} {...props} />;
+});
+
+
+
 
 ReactDOM.render(<App />, rootElement);

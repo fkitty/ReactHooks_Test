@@ -1,4 +1,4 @@
-.App {
+/* .App {
   font-family: sans-serif;
   text-align: center;
 }
@@ -9,4 +9,15 @@
 .blue button {
   background: blue;
   color: white;
+} */
+
+* {
+  margin: 0;
+  padding: 0;
+}
+* {
+  box-sizing: border-box;
+}
+.movable {
+  position: fixed;
 }
